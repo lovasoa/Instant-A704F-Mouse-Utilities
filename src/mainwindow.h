@@ -79,7 +79,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QThread *inputHandlerThread;
+    QThread *inputHandlerThread = nullptr;
     RGBPreview rgbPreview;
     MouseSettings mouseSettings = MouseSettings();
 

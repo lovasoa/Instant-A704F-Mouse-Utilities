@@ -16,6 +16,10 @@ Configurable items including custom button bindings, change speed of breathing l
 Vendor IDs/Product IDs:
 - `18f8:1286` (A704F)
 - `30fa:1701` (A704)
+- `18f8:0f99` (Megaport / generic USB OPTICAL MOUSE): lighting and wheel mode only.
+  LED off and USB selection of volume mode were confirmed on hardware.
+  Button reassignment and keyboard output produced no observed effect; DPI
+  testing was inconclusive. Unsupported controls are disabled for this model.
 All the observed details can be found in [SPECS.md](./SPECS.md)
 
 For more context and story, [I have written a blog about it](https://blog.lx862.com/blog/2024-05-13-reverse-engineering-a-mouse/)

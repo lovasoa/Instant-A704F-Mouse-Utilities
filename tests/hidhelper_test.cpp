@@ -33,6 +33,7 @@ int hid_send_feature_report(hid_device *, const unsigned char *data, size_t leng
     sentReport.assign(data, data + length);
     return static_cast<int>(length);
 }
+hid_device_info *hid_get_device_info(hid_device *) { return &interfaceInfo; }
 const wchar_t *hid_error(hid_device *) { return L"test error"; }
 }
 
@@ -63,5 +64,14 @@ int main() {
     interfaceInfo.path = path;
     check(HIDHelper::openKeyboardInterface() == device, "Expected keyboard interface");
     check(freeCount == 1, "Enumeration must be freed after opening an interface");
+    interfaceInfo.vendor_id = 0x18f8;
+    interfaceInfo.product_id = 0x0f99;
+    check(!HIDHelper::supportsExtendedConfiguration(device), "Megaport has partial configuration support");
+    MouseSettings settings;
+    before = sendCount;
+    HIDHelper::applyMouseSettings(device, settings);
+    check(sendCount == before + 2, "Megaport must only receive lighting and wheel settings");
+    interfaceInfo.product_id = 0x1286;
+    check(HIDHelper::supportsExtendedConfiguration(device), "Existing models retain full configuration support");
     return 0;
 }

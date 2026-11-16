@@ -70,6 +70,12 @@ void HIDHelper::sendRawMouseReport(hid_device *dev, unsigned char updateType, un
     }
 }
 
+bool HIDHelper::supportsExtendedConfiguration(hid_device *dev) {
+    if(!dev) return false;
+    const hid_device_info *info = hid_get_device_info(dev);
+    return info && !(info->vendor_id == 0x18f8 && info->product_id == 0x0f99);
+}
+
 void HIDHelper::applyMouseSettings(hid_device *dev, MouseSettings settings) {
     if(!dev) return;
 
@@ -79,6 +85,10 @@ void HIDHelper::applyMouseSettings(hid_device *dev, MouseSettings settings) {
 
     // Scroll wheel
     sendMouseReport(dev, ScrollWheel, settings.scrollMode, 0x00);
+
+    // This model accepts lighting and wheel mode commands; other settings
+    // have not produced a confirmed effect in hardware tests.
+    if(!supportsExtendedConfiguration(dev)) return;
 
     // Fire Rate
     sendMouseReport(dev, FireRate, 0x00, settings.fireRate);

@@ -17,10 +17,12 @@ public:
     static hid_device_* openKeyboardInterface();
     static void sendMouseReport(hid_device *dev, unsigned char updateType, unsigned char forComponent, unsigned char data, unsigned char enabledDpiProfile = 0x00);
     static void sendRawMouseReport(hid_device *dev, unsigned char updateType, unsigned char data[], int dataLength);
+    static bool supportsExtendedConfiguration(hid_device *dev);
     static void applyMouseSettings(hid_device *dev, MouseSettings settings);
     static constexpr VendorProductID supportedDevices[] {
         {0x18f8, 0x1286},
-        {0x30fa, 0x1701}
+        {0x30fa, 0x1701},
+        {0x18f8, 0x0f99}
     };
 
     enum UpdateType {

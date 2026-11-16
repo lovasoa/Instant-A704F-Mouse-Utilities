@@ -19,19 +19,34 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->disconnectedPage->hide();
     hid_device *dev = HIDHelper::openMouseInterface(this);
+    const bool extendedConfiguration = HIDHelper::supportsExtendedConfiguration(dev);
     HIDHelper::applyMouseSettings(dev, mouseSettings); // Apply config on startup, since config is not persistently stored on mouse
     hid_close(dev);
 
     initUIFields(mouseSettings);
+    if(!extendedConfiguration) {
+        ui->tabWidget->setTabEnabled(ui->tabWidget->indexOf(ui->buttonMappingTab), false);
+        const QList<QWidget *> controls = {
+            ui->dpi1Radio, ui->dpi2Radio, ui->dpi3Radio, ui->dpi4Radio,
+            ui->dpi1Enabled, ui->dpi2Enabled, ui->dpi3Enabled, ui->dpi4Enabled,
+            ui->dpiSlider, ui->applyCheckBox, ui->fireRateSlider
+        };
+        for(QWidget *control : controls) {
+            control->setEnabled(false);
+            control->setToolTip(tr("This mouse supports lighting and wheel mode settings only."));
+        }
+    }
     // Mouse monitoring thread
-    inputHandlerThread = new QThread();
-    MouseInputHandler *im = new MouseInputHandler(&mouseSettings);
-    im->moveToThread(inputHandlerThread);
-    connect(im, &MouseInputHandler::input, this, &MainWindow::handleSpecialInput);
-    connect(im, &MouseInputHandler::updateMouseStatus, this, &MainWindow::updateMouseStatus);
-    connect(inputHandlerThread, &QThread::started, im, &MouseInputHandler::run);
-    connect(inputHandlerThread, &QThread::finished, im, &MouseInputHandler::deleteLater);
-    inputHandlerThread->start();
+    if(extendedConfiguration) {
+        inputHandlerThread = new QThread();
+        MouseInputHandler *im = new MouseInputHandler(&mouseSettings);
+        im->moveToThread(inputHandlerThread);
+        connect(im, &MouseInputHandler::input, this, &MainWindow::handleSpecialInput);
+        connect(im, &MouseInputHandler::updateMouseStatus, this, &MainWindow::updateMouseStatus);
+        connect(inputHandlerThread, &QThread::started, im, &MouseInputHandler::run);
+        connect(inputHandlerThread, &QThread::finished, im, &MouseInputHandler::deleteLater);
+        inputHandlerThread->start();
+    }
 
     rgbPreview.init(ui->rgb_mouse_display, ui->rgb_mouse_base, { ui->rgb_mouse_red, ui->rgb_mouse_purple, ui->rgb_mouse_blue, ui->rgb_mouse_magenta });
 
