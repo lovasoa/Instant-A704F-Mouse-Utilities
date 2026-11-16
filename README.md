@@ -77,3 +77,16 @@ downloads HIDAPI 0.15.0. To stage an installation without administrator access:
 ```sh
 DESTDIR="$PWD/build/stage" cmake --install build
 ```
+
+
+### RPM package (Fedora)
+
+Install the build dependencies above and `rpm-build`, then run:
+
+```sh
+./script/build-rpm.sh
+sudo dnf install ./build/rpm/packages/*.rpm
+```
+
+The package installs desktop integration and USB permissions. Reconnect the
+mouse after the first installation. Build and packaging do not require root.
