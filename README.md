@@ -90,3 +90,26 @@ sudo dnf install ./build/rpm/packages/*.rpm
 
 The package installs desktop integration and USB permissions. Reconnect the
 mouse after the first installation. Build and packaging do not require root.
+### AppImage (x86_64)
+
+Install the build dependencies above, plus `curl`, `file` and `patchelf`, then run:
+
+```sh
+./script/build-appimage.sh
+```
+
+The script verifies and runs pinned LinuxDeploy and Qt plugin releases.
+The AppImage is written to `build/appimage/`. Build on the oldest distribution
+you intend to support; building on a newer Fedora does not make the result
+compatible with older systems.
+
+AppImages can access USB, but cannot install host device permissions themselves.
+Install the supplied rules once, then reconnect the mouse:
+
+```sh
+sudo install -m 644 51-a704f-usb-gaming-mouse.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules
+```
+
+Run the AppImage as your normal desktop user. These rules are already installed
+when using the RPM.
