@@ -3,29 +3,18 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QString>
-#include <QFile>
-#include <unistd.h>
 #include <algorithm>
 
-#define UDEV_RULES "51-a704f-usb-gaming-mouse.rules"
 
 hid_device_* HIDHelper::openMouseInterface(QWidget *parent) {
     hid_device *handle = openKeyboardInterface();
 
     if(!handle) {
         qCritical("Cannot find device with the designated Vendor/Product ID");
-        QMessageBox::critical(parent, "Error", QString("Cannot find the corresponding device.\nIf the device is plugged in, it is likely you need to run this program under root.\nThe program will then prompt you to install an udev rules so you do not have to elevate the application again in the future."));
-    }
-
-    if(geteuid() == 0) { // Root UID
-        QMessageBox::StandardButton response = QMessageBox::question(parent, "Running under root permission", "You are running this program under root permission. You can avoid that by installing a udev rules.\n\nAfter the installation, you can re-plug your mouse or restart your computer, then you should be able to use the program under normal user account.\n\nDo you want to install it?", QMessageBox::Yes|QMessageBox::No);
-        if(response == QMessageBox::StandardButton::Yes) {
-            QString resourcePath = QString(":/") + UDEV_RULES;
-            QString destinatedPath = QString("/etc/udev/rules.d/") + UDEV_RULES;
-            QFile::copy(resourcePath, destinatedPath);
-            QMessageBox::information(parent, "Rules installed", "udev rules installed! You should no longer need to run this program as root after re-plugging your device or restarting your computer.");
-            qDebug() << "udev rules installed at " << destinatedPath;
-        }
+        QMessageBox::critical(parent, "Mouse unavailable",
+            "Cannot access a supported mouse. Check that it is connected and that "
+            "the supplied udev rules are installed, then reconnect it. "
+            "Run this application as your normal desktop user.");
     }
 
     return handle;

@@ -1,4 +1,4 @@
-SUBSYSTEM=="usb", ATTRS{idVendor}=="18f8", ATTRS{idProduct}=="1286", MODE="0666"
-SUBSYSTEM=="usb", ATTRS{idVendor}=="30fa", ATTRS{idProduct}=="1701", MODE="0666"
-KERNEL=="hidraw*", ATTRS{busnum}=="1", ATTRS{idVendor}=="18f8", ATTRS{idProduct}=="1286", MODE="0666"
-KERNEL=="hidraw*", ATTRS{busnum}=="1", ATTRS{idVendor}=="30fa", ATTRS{idProduct}=="1701", MODE="0666"
+# Grant the active local desktop user access to supported mouse HID interfaces.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="18f8", ATTRS{idProduct}=="1286", TAG+="uaccess"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="30fa", ATTRS{idProduct}=="1701", TAG+="uaccess"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="18f8", ATTRS{idProduct}=="0f99", TAG+="uaccess"
