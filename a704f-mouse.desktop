@@ -2,7 +2,7 @@
 Type=Application
 
 # The version of the desktop entry specification to which this file complies
-Version=1.0.0
+Version=1.0
 
 # The name of the application
 Name=A704F Mouse Utilities
@@ -11,13 +11,12 @@ Name=A704F Mouse Utilities
 Comment=Configuration tool for the Instant A704F Mouse
 
 # The path to the folder in which the executable is run
-Path=/usr/bin
 
 # The executable of the application, possibly with arguments.
 Exec=A704F_Mouse
 
 # The name of the icon that will be used to display this entry
-Icon=a704f-mouse.png
+Icon=a704f-mouse
 
 # Describes whether this application needs to be run in a terminal or not
 Terminal=false

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.31)
 
 project(A704F_Mouse VERSION 1.1.0 LANGUAGES CXX)
+include(GNUInstallDirs)
 include(FetchContent)
 
 set(CMAKE_AUTOUIC ON)
@@ -10,9 +11,9 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PROGRAM_AUTHOR, "AmberFrost")
-set(PROGRAM_AUTHOR_EMAIL, "amberfrost@lx862.com")
-set(PROGRAM_SRC_URL, "https://github.com/AmberIsFrozen/Instant-A704F-Mouse-Utilities")
+set(PROGRAM_AUTHOR "AmberFrost")
+set(PROGRAM_AUTHOR_EMAIL "amberfrost@lx862.com")
+set(PROGRAM_SRC_URL "https://github.com/AmberIsFrozen/Instant-A704F-Mouse-Utilities")
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
@@ -72,27 +73,25 @@ set_target_properties(A704F_Mouse PROPERTIES
 )
 
 install(TARGETS A704F_Mouse
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    BUNDLE DESTINATION . COMPONENT Runtime
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(A704F_Mouse)
 endif()
 
-set(BUILD_SHARED_LIBS FALSE)
-
-FetchContent_Declare(
-  hidapi
-  URL      https://github.com/libusb/hidapi/archive/refs/tags/hidapi-0.15.0.zip
-  DOWNLOAD_EXTRACT_TIMESTAMP ON
-)
-
-
-FetchContent_MakeAvailable(hidapi)
-target_include_directories(A704F_Mouse PRIVATE ${hidapi_SOURCE_DIR})
-target_link_libraries(A704F_Mouse PUBLIC hidapi::hidapi)
+find_package(hidapi 0.15 CONFIG QUIET)
+if(NOT hidapi_FOUND)
+    set(BUILD_SHARED_LIBS FALSE)
+    FetchContent_Declare(
+        hidapi
+        URL https://github.com/libusb/hidapi/archive/refs/tags/hidapi-0.15.0.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP ON
+    )
+    FetchContent_MakeAvailable(hidapi)
+endif()
+target_link_libraries(A704F_Mouse PRIVATE hidapi::hidapi)
 
 include(CTest)
 if(BUILD_TESTING)
@@ -102,12 +101,14 @@ if(BUILD_TESTING)
     add_test(NAME hidhelper COMMAND hidhelper_test)
 endif()
 
-# set(CMAKE_INSTALL_PREFIX /)
+set(UDEV_RULES_INSTALL_DIR "lib/udev/rules.d" CACHE PATH "udev rules directory relative to the install prefix")
+install(FILES 51-a704f-usb-gaming-mouse.rules
+    DESTINATION ${UDEV_RULES_INSTALL_DIR} COMPONENT Udev)
+install(FILES img/tray.png RENAME a704f-mouse.png
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps COMPONENT Runtime)
+install(FILES a704f-mouse.desktop
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/applications COMPONENT Runtime)
 
-install(TARGETS A704F_Mouse DESTINATION usr/local/bin)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/51-a704f-usb-gaming-mouse.rules DESTINATION etc/udev/rules.d)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/img/tray.png RENAME a704f-mouse.png DESTINATION usr/share/pixmaps)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/a704f-mouse.desktop DESTINATION usr/share/applications)
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
@@ -132,9 +133,9 @@ set(CPACK_PACKAGE_DESCRIPTION
 "This is an unofficial program that can be used to configure the A704/A704F Mouse by Instant Microelectronics.")
 
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${PROGRAM_AUTHOR} <${PROGRAM_AUTHOR_EMAIL}>")
-set(CPACK_DEBIAN_PACKAGE_HOMEPAGE PROGRAM_SRC_URL)
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROGRAM_SRC_URL}")
 
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt6-base-dev")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA ${CMAKE_CURRENT_SOURCE_DIR}/script/postinst)
 
 include(CPack)

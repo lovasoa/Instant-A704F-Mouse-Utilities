@@ -2,7 +2,7 @@
 #define HIDHELPER_H
 
 #include "mousesettings.h"
-#include <hidapi.h>
+#include <hidapi/hidapi.h>
 #include <QApplication>
 
 class HIDHelper

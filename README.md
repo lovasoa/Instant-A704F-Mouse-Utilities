@@ -62,3 +62,18 @@ make install
 
 ## License
 This project is licensed under the MIT License.
+
+### Fedora build dependencies
+
+```sh
+sudo dnf install cmake gcc-c++ qt6-qtbase-devel hidapi-devel
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build build --parallel
+```
+
+An installed HIDAPI 0.15 or newer is used when available; otherwise CMake
+downloads HIDAPI 0.15.0. To stage an installation without administrator access:
+
+```sh
+DESTDIR="$PWD/build/stage" cmake --install build
+```
